@@ -1,0 +1,19 @@
+body {
+    background-color: pink;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    margin: 2em;
+}
+
+button {
+    padding: 2em;
+    margin: 2em;
+    font-size: 5em;
+}
+
+label {
+    margin: 0.3em;
+}
