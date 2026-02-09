@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+<title> <%= data.title %> - Movie Site </title>
+
+<h1>Films</h1>
+
+<form action="/detail" method="post">
+  <input type="text" name="title">
+  <textarea name="description"></textarea>
+  <button type="submit">Save</button>
+</form>
+
+<% if (data.length === 0) { %>
+  <p>Nog geen films</p>
+<% } %>
+
+<% data.forEach(item => { %>
+  <article>
+    <h2><%= item.title %></h3>
+    <p><%= item.description %></p>
+  </article>
+<% }) %>
+
+
+<p> <a href="/">Back to list</a> </p>
+
+</html> 
