@@ -1,43 +1,81 @@
-const express = require('express')
-const app = express()
+require("dotenv").config();
 
-app.set("view engine", "ejs")
+const express = require("express");
+const { MongoClient, ServerApiVersion } = require("mongodb");
 
-app.use(express.static('static'))
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+const app = express();
+const uri = process.env.MONGODB_URI;
 
-const data = []
+const client = new MongoClient(uri)
 
-app.get('/', (req, res) => {
-  res.send('Hello World')
-})
+app.set("view engine", "ejs");
+app.use(express.static("static"));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.get('/profile/:username', (req, res) => {
-  const username = req.params.username
-  res.send(`Profielpagina van ${username}`)
-})
+// MongoDB connect
+async function connectDB() {
+  try {
+    await client.connect();
+    await client.db("admin").command({ ping: 1 });
+    console.log("✅ Connected to MongoDB");
+  } catch (err) {
+    console.error("❌ MongoDB connection failed:", err);
+  }
+}
 
-app.get('/detail', (req, res) => {
-  
-  res.render("detail", { data: data })
-})
+connectDB();
 
-app.post('/detail', (req, res) => {
-  console.log(req.body)
+// --------------------
+// Functie: Haal alle posts op
+// --------------------
+async function getPosts() {
+  const database = client.db("bloktech");
+  const collection = database.collection("posts");
 
-  data.push({
+  const posts = await collection.find({}).toArray();
+  return posts;
+}
+
+// --------------------
+// Functie: Voeg nieuwe post toe
+// --------------------
+async function insertPost(post) {
+  const database = client.db("bloktech");
+  const collection = database.collection("posts");
+
+  await collection.insertOne({
+    title: post.title,
+    description: post.description,
+    createdAt: new Date(),
+  });
+}
+
+app.get("/", (req, res) => {
+  res.send("Hello World");
+});
+
+app.get("/profile/:username", (req, res) => {
+  res.send(`Profielpagina van ${req.params.username}`);
+});
+
+app.get("/detail", async (req, res) => {
+  const posts = await getPosts();
+  res.render("detail", { data: posts });
+});
+
+app.post("/detail", async (req, res) => {
+  await insertPost({
     title: req.body.title,
-    description: req.body.description
-  })
-
-  res.redirect('/detail')
-})
+    description: req.body.description,
+  });
+  res.redirect("/detail");
+});
 
 app.use((req, res) => {
-  res.status(404).send('404 Not Found')
-})
+  res.status(404).send("404 Not Found");
+});
 
 app.listen(3000, () => {
-  console.log('Server is running on http://localhost:3000')
-})
+  console.log("🚀 Server running on http://localhost:3000");
+});
