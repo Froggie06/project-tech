@@ -26,6 +26,8 @@ async function connectDB() {
 
 connectDB();
 
+
+
 // --------------------
 // Functie: Haal alle posts op
 // --------------------
